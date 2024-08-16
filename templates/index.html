@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Visualization Generator</title>
+</head>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Regex Tester</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f8f8f8;
+        text-align: center;
+    }
+
+    h1 {
+        color: #333;
+        margin-top: 50px;
+    }
+
+    form {
+        margin-top: 20px;
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 5px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        width: 500px; /* Increased width */
+        margin: 0 auto;
+    }
+
+    input[type="text"], input[type="submit"] {
+        width: 100%;
+        padding: 12px; /* Slightly increased padding */
+        margin-bottom: 12px; /* Slightly increased margin */
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+    }
+
+    input[type="submit"] {
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        cursor: pointer;
+    }
+
+    input[type="submit"]:hover {
+        background-color: #45a049;
+    }
+</style>
+
+
+<body>
+    <h1>Data Visualization Generator using Langchain Agent</h1>
+    
+    <form id="uploadForm" enctype="multipart/form-data">
+        <input type="file" name="file" id="fileInput" accept=".csv">
+        <button type="submit">Upload</button>
+    </form>
+
+    <div id="dataPreview"></div>
+
+    <form id="queryForm">
+        <input type="hidden" name="file_path" id="filePath">
+        <label for="query">Enter your Query:</label>
+        <input type="text" name="query" id="queryInput">
+        <button type="submit">Submit</button>
+    </form>
+
+    <div id="result"></div>
+    <div id="visualization"></div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#uploadForm').on('submit', function(event) {
+                event.preventDefault();
+                var formData = new FormData(this);
+                $.ajax({
+                    url: '/upload',
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(response) {
+                        $('#filePath').val(response.file_path);
+                        $('#dataPreview').html('<p>File uploaded successfully!</p>');
+                    },
+                    error: function(error) {
+                        $('#dataPreview').html('<p>' + error.responseJSON.error + '</p>');
+                    }
+                });
+            });
+
+            $('#queryForm').on('submit', function(event) {
+                event.preventDefault();
+                var formData = $(this).serialize();
+                $.ajax({
+                    url: '/submit',
+                    type: 'POST',
+                    data: formData,
+                    success: function(response) {
+                        $('#result').html('<p>' + response.result + '</p>');
+                        $('#visualization').html(response.plot_html);
+                    },
+                    error: function(error) {
+                        $('#result').html('<p>' + error.responseJSON.error + '</p>');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
